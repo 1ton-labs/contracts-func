@@ -1,0 +1,24 @@
+(slice, int) dict_get(cell dict, int key_len, slice index) asm(index dict key_len) "DICTGET" "NULLSWAPIFNOT";
+(cell, int) dict_get_ref(cell dict, int key_len, slice index) asm(index dict key_len) "DICTGETREF" "NULLSWAPIFNOT";
+(cell, int) dict_delete(cell dict, int key_len, slice index) asm(index dict key_len) "DICTDEL";
+((cell), ()) dict_set_ref(cell dict, int key_len, slice index, cell value) asm(value index dict key_len) "DICTSETREF";
+
+(cell, ()) dict_set_slice_int(cell dict, int key_len, slice index, int value, int value_len) {
+    if (null?(value)) {
+        var (r, ok) = dict_delete(dict, key_len, index);
+        return (r, ());
+    } else {
+        return (dict_set_builder(dict, key_len, index, begin_cell().store_int(value, value_len)), ());
+    }
+}
+
+int dict_get_slice_int(cell dict, int key_len, slice index, int value_len) inline {
+    var (r, ok) = dict_get(dict, key_len, index);
+    if (ok) {
+        return r~load_int(value_len);
+    } else {
+        return null();
+    }
+}
+
+forall X -> X not_null(X x) { throw_if(128, null?(x)); return x; }

@@ -1,0 +1,203 @@
+#include "imports/stdlib.fc";
+#include "imports/utils.fc";
+
+global slice owner_address; 
+global cell deposit_pool;
+global cell loan_pool;
+
+int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
+
+() load_data() impure {
+    var ds = get_data().begin_parse();
+    owner_address = ds~load_msg_addr();
+    deposit_pool = ds~load_dict();
+    loan_pool = ds~load_dict();
+}
+
+() save_data() impure {
+    set_data(begin_cell()
+    .store_slice(owner_address)
+    .store_dict(deposit_pool)
+    .store_dict(loan_pool)
+    .end_cell());
+}
+
+() deposit(slice sender, int amount) impure {
+    load_data();
+    int deposit = null?(deposit_pool)? 0 : dict_get_slice_int(deposit_pool, 267, sender, 120);  
+    amount = deposit + amount; 
+    (deposit_pool, _) = dict_set_slice_int(deposit_pool, 267, sender, amount, 120);
+    throw_if(500, null?(deposit_pool));
+    save_data();
+}
+
+() withdraw(slice receiver, int withdraw_amount) impure {
+    load_data();
+    int deposit = null?(deposit_pool)? 0 : dict_get_slice_int(deposit_pool, 267, receiver, 120);  
+    throw_unless(400, withdraw_amount <= deposit );
+    var msg = begin_cell()
+    .store_uint(0x18, 6) ;; 0b011000 int_msg_info, instant hypercube routing, bounceable message, message is not the result of bouncing itself, addr_none(self)
+    .store_slice(receiver)
+    .store_coins(withdraw_amount)
+    .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1) ;; see more detail in message scheme
+    .end_cell();
+    send_raw_message(msg, 2);
+    int remain = deposit - withdraw_amount ;
+    (deposit_pool, _) = dict_set_slice_int(deposit_pool, 267, receiver, remain, 120);
+    save_data();
+}
+
+() start_loan(slice sender, slice in_msg_body) impure { 
+    load_data();
+    slice investor = in_msg_body~load_msg_addr();
+    slice item = in_msg_body~load_msg_addr();
+    int amount = in_msg_body~load_uint(120);
+    int repay_amount = in_msg_body~load_uint(120);
+    int duration = in_msg_body~load_uint(64);
+
+    var (loan_cell, ok) = dict_get_ref(loan_pool, 267, item);
+    throw_unless(409, null?(loan_cell));
+
+    cell loan = begin_cell()
+    .store_slice(investor)
+    .store_slice(sender)
+    .store_uint(amount, 120)
+    .store_uint(repay_amount, 120)
+    .store_uint(now(), 64)
+    .store_uint(duration, 64)
+    .end_cell();
+    (loan_pool, _) = dict_set_ref(loan_pool ,267 ,item ,loan);
+    ;; withdraw(sender,amount);
+    save_data();
+}
+
+() transfer_bond(slice sender, slice receiver, slice item){
+    var msg = begin_cell()
+     .store_uint(0x18, 6) 
+     .store_slice(item)
+     .store_coins(min_tons_for_storage())
+     .store_uint(1, 1 + 4 + 4 + 64 + 32 + 1 + 1) 
+     .store_ref(
+        begin_cell()
+         .store_uint(0x5fcc3d14, 32)
+         .store_uint(0, 64)
+         .store_slice(receiver)
+         .store_slice(sender)
+         .store_uint(0, 1)
+         .store_coins(0)
+         .store_ref(begin_cell().end_cell())
+        .end_cell()
+    )
+     .end_cell();
+    send_raw_message(msg, 2);
+}
+
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) { ;; ignore empty messages
+        return ();
+    }
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
+    
+    if (flags & 1) { ;; ignore all bounced messages
+        return ();
+    }
+    slice sender = cs~load_msg_addr();
+
+    int op = in_msg_body~load_uint(32);
+    int query_id = in_msg_body~load_uint(64);
+    load_data();
+
+    if (op == 1) { ;; start loan
+        start_loan(sender, in_msg_body);
+        return();
+    }
+
+    if (op == 2) { ;; repay
+        slice item = in_msg_body~load_msg_addr();
+        var (loan_cell, ok) = dict_get_ref(loan_pool, 267, item);
+        throw_if(404, null?(loan_cell));
+        slice loan = loan_cell.begin_parse();
+        slice investor = loan~load_msg_addr();
+        slice borrower = loan~load_msg_addr();
+        int amount = loan~load_uint(120);
+        int repay_amount = loan~load_uint(120);
+        int start_time = loan~load_uint(64);
+        int duration = loan~load_uint(64);
+
+        transfer_bond(sender, borrower, item);
+        cs~load_msg_addr(); ;; skip dst
+        int value = cs~load_coins();
+        throw_if(400, value < repay_amount);
+        deposit(investor,repay_amount);
+        dict_delete(loan_pool, 267, item);
+    }
+
+    if (op == 3) { ;; claim
+        slice item = in_msg_body~load_msg_addr();
+        var (loan_cell, ok) = dict_get_ref(loan_pool, 267, item);
+        throw_if(404, null?(loan_cell));
+
+        slice loan = loan_cell.begin_parse();
+        slice investor = loan~load_msg_addr();
+        slice borrower = loan~load_msg_addr();
+        int amount = loan~load_uint(120);
+        int repay_amount = loan~load_uint(120);
+        int start_time = loan~load_uint(64);
+        int duration = loan~load_uint(64);
+
+        throw_if(400, (now() < (start_time + duration)) );
+        transfer_bond(borrower, investor, item);
+        dict_delete(loan_pool, 267, item);
+    }
+
+    if (op == 4){ ;; deposit
+        int deposit_amount = in_msg_body~load_uint(120);
+        int transfer_amount = in_msg_body~load_uint(120);
+        throw_if(400, transfer_amount < deposit_amount);
+        deposit(sender,deposit_amount);
+    }
+
+    if (op == 5){ ;; withdraw
+        int withdraw_amount = in_msg_body~load_uint(120);
+        withdraw(sender,withdraw_amount);
+    }
+}
+
+cell get_deposit_pool() method_id {
+    load_data();
+    return deposit_pool;
+}
+
+cell get_loan_pool() method_id {
+    load_data();
+    return loan_pool;
+}
+
+int get_deposit_value(slice user) method_id {
+    load_data();
+    int deposit = null?(deposit_pool)? 0 : dict_get_slice_int(deposit_pool, 267, user, 120);  
+    if(not_null(deposit)){
+        return deposit ;
+    } else {
+        return -1;
+    }
+}
+
+cell get_loan(slice item) method_id {
+    load_data();
+    var (loan_cell, ok) = dict_get_ref(loan_pool, 267, item);
+    if (ok) {
+        return loan_cell;
+    } else {
+        return null();
+    }
+}
+
+
+slice get_version() method_id {
+    return "v0.1";
+} 
+
+
+
