@@ -26,7 +26,7 @@ export class BondItem implements Contract {
         forwardAmount: bigint,
         forwardPayload: Cell ,
         value: bigint
-    }){
+    }) {
         console.log(`newOwner = ${opts.newOwner}`);
         console.log(`responseDestination = ${opts.responseDestination}`);
         
@@ -45,7 +45,7 @@ export class BondItem implements Contract {
         }) 
     }
 
-    async sendBurn(provider: ContractProvider, via: Sender, value: bigint){
+    async sendBurn(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
             value: value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
@@ -56,7 +56,7 @@ export class BondItem implements Contract {
         })
     }
 
-    async sendActivate(provider: ContractProvider, via: Sender, value: bigint){
+    async sendActivate(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
             value: value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
@@ -67,7 +67,7 @@ export class BondItem implements Contract {
         })
     }
 
-    async sendDeactivate(provider: ContractProvider, via: Sender, value: bigint){
+    async sendDeactivate(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
             value: value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
@@ -78,11 +78,13 @@ export class BondItem implements Contract {
         })
     }
 
-    async getNftData(provider: ContractProvider){
+    async getNftData(provider: ContractProvider) {
         const result = await provider.get('get_nft_data', []);
+        console.log(result.stack)
         return {
             init: result.stack.readNumber(),
             index: result.stack.readNumber(),
+            activate_time: result.stack.readNumber(),
             collection_address: result.stack.readAddress(),
             owner_address: result.stack.readAddressOpt(),
             content: result.stack.readCellOpt(),
