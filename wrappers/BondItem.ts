@@ -8,7 +8,9 @@ export function bondItemConfigToCell(config: BondItemConfig): Cell {
 
 enum Opcodes {
     TRANSFER = 0x5fcc3d14,
-    BURN = 0x3
+    BURN = 0x3,
+    ACTIVATE = 0x4,
+    DEACTIVATE = 0x5,
 }
 
 export class BondItem implements Contract {
@@ -49,6 +51,28 @@ export class BondItem implements Contract {
             sendMode: SendMode.PAY_GAS_SEPARATELY,
             body: beginCell()
             .storeUint(Opcodes.BURN, 32) // op
+            .storeUint(0, 64) // query_id 
+            .endCell()
+        })
+    }
+
+    async sendActivate(provider: ContractProvider, via: Sender, value: bigint){
+        await provider.internal(via, {
+            value: value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell()
+            .storeUint(Opcodes.ACTIVATE, 32) // op
+            .storeUint(0, 64) // query_id 
+            .endCell()
+        })
+    }
+
+    async sendDeactivate(provider: ContractProvider, via: Sender, value: bigint){
+        await provider.internal(via, {
+            value: value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell()
+            .storeUint(Opcodes.DEACTIVATE, 32) // op
             .storeUint(0, 64) // query_id 
             .endCell()
         })
