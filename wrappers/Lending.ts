@@ -1,4 +1,5 @@
 import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Dictionary, Sender, SendMode, toNano, TupleBuilder } from 'ton-core';
+import { FUNC_COIN_LENGTH, FUNC_INT_LENGTH } from '../utils/helpers';
 
 export type LendingConfig = {owner: Address};
 
@@ -16,7 +17,7 @@ export type Loan = {
     principal: bigint;
     repayment: bigint;
     start_time: bigint; 
-    duration: number; 
+    duration: bigint; 
     borrower: Address;
     lender: Address;
     item: Address
@@ -70,8 +71,8 @@ export class Lending implements Contract {
             .storeUint(0, 64) // query_id
             .storeAddress(startLoan.investor)
             .storeAddress(startLoan.item)
-            .storeUint(startLoan.amount, 120)
-            .storeUint(startLoan.repay_amount, 120)
+            .storeUint(startLoan.amount, FUNC_COIN_LENGTH)
+            .storeUint(startLoan.repay_amount, FUNC_COIN_LENGTH)
             .storeUint(startLoan.duration, 64)
             .endCell(),
         })
@@ -96,8 +97,8 @@ export class Lending implements Contract {
             body: beginCell()
             .storeUint(Opcodes.DEPOSIT, 32) // op
             .storeUint(0, 64) // query_id
-            .storeUint(depositValue - toNano("0.01"), 120)
-            .storeUint(depositValue, 120)
+            .storeUint(depositValue - toNano("0.01"), FUNC_COIN_LENGTH)
+            .storeUint(depositValue, FUNC_COIN_LENGTH)
             .endCell(),
         })
     }
@@ -109,14 +110,26 @@ export class Lending implements Contract {
             body: beginCell()
             .storeUint(Opcodes.WITHDRAW, 32) // op
             .storeUint(0, 64) // query_id
-            .storeUint(withdrawValue, 120)
+            .storeUint(withdrawValue, FUNC_COIN_LENGTH)
+            .endCell(),
+        })
+    }
+
+    async sendClaim(provider: ContractProvider, via: Sender, item:Address){
+        await provider.internal(via, {
+            value: toNano("0.01"),
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell()
+            .storeUint(Opcodes.CLAIM, 32) // op
+            .storeUint(0, 64) // query_id
+            .storeAddress(item)
             .endCell(),
         })
     }
 
     async getDepositPool(provider: ContractProvider) {
         const source = (await provider.get('get_deposit_pool', [])).stack;
-        let result = Dictionary.loadDirect(Dictionary.Keys.Address(), Dictionary.Values.BigInt(64), source.readCellOpt());
+        let result = Dictionary.loadDirect(Dictionary.Keys.Address(), Dictionary.Values.BigInt(FUNC_INT_LENGTH), source.readCellOpt());
         return result;
     }
 
@@ -165,10 +178,10 @@ export class Lending implements Contract {
         const loan = loanCell.asSlice();
         const lender = loan.loadAddress();
         const borrower = loan.loadAddress();
-        const principal = loan.loadUintBig(120);
-        const repayment = loan.loadUintBig(120);
+        const principal = loan.loadUintBig(FUNC_COIN_LENGTH);
+        const repayment = loan.loadUintBig(FUNC_COIN_LENGTH);
         const start_time = loan.loadUintBig(64);
-        const duration =  loan.loadUint(64);
+        const duration =  loan.loadUintBig(64);
         const result = {
             principal,
             repayment,
