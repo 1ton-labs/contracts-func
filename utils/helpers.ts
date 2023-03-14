@@ -39,12 +39,12 @@ export function getItemForEnv():{collection:string,item:string}{
     }
 }
 
-export async function upsertEnvironmentVariable(key:string, content: string){
+export async function upsertEnvironmentVariable(key: string, content: string){
     fs.readFile(ENV_FILE_LOCATION, function (err, data) {
         if (err) throw err;
         const envStr = `${key}="${content}"`
         if (data.indexOf(key) >= 0) {
-            console.log(`replace envStr`);
+            console.log(`replace envStr with key ${key}`);
             const reg = new RegExp(`${key}=".*"`, 'g')
             const options = {
                 files: ENV_FILE_LOCATION,

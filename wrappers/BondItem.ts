@@ -8,7 +8,9 @@ export function bondItemConfigToCell(config: BondItemConfig): Cell {
 
 enum Opcodes {
     TRANSFER = 0x5fcc3d14,
-    BURN = 0x3
+    BURN = 0x3,
+    ACTIVATE = 0x4,
+    DEACTIVATE = 0x5,
 }
 
 export class BondItem implements Contract {
@@ -24,7 +26,7 @@ export class BondItem implements Contract {
         forwardAmount: bigint,
         forwardPayload: Cell ,
         value: bigint
-    }){
+    }) {
         console.log(`newOwner = ${opts.newOwner}`);
         console.log(`responseDestination = ${opts.responseDestination}`);
         
@@ -43,7 +45,7 @@ export class BondItem implements Contract {
         }) 
     }
 
-    async sendBurn(provider: ContractProvider, via: Sender, value: bigint){
+    async sendBurn(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
             value: value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
@@ -54,11 +56,35 @@ export class BondItem implements Contract {
         })
     }
 
-    async getNftData(provider: ContractProvider){
+    async sendActivate(provider: ContractProvider, via: Sender, value: bigint) {
+        await provider.internal(via, {
+            value: value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell()
+            .storeUint(Opcodes.ACTIVATE, 32) // op
+            .storeUint(0, 64) // query_id 
+            .endCell()
+        })
+    }
+
+    async sendDeactivate(provider: ContractProvider, via: Sender, value: bigint) {
+        await provider.internal(via, {
+            value: value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell()
+            .storeUint(Opcodes.DEACTIVATE, 32) // op
+            .storeUint(0, 64) // query_id 
+            .endCell()
+        })
+    }
+
+    async getNftData(provider: ContractProvider) {
         const result = await provider.get('get_nft_data', []);
+
         return {
             init: result.stack.readNumber(),
             index: result.stack.readNumber(),
+            activate_time: result.stack.readNumber(),
             collection_address: result.stack.readAddress(),
             owner_address: result.stack.readAddressOpt(),
             content: result.stack.readCellOpt(),
