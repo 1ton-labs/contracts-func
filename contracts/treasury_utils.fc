@@ -1,0 +1,32 @@
+#include "imports/stdlib.fc";
+#include "imports/params.fc";
+
+cell pack_treasury_pool_data(slice owner_address, slice nft_item_address) inline {
+    return begin_cell()
+            .store_slice(owner_address)
+            .store_slice(nft_item_address)
+            .end_cell();
+}
+
+cell calculate_treasury_pool_state_init(slice owner_address, slice nft_item_address, cell treasury_pool_code) inline {
+    return begin_cell()
+            .store_uint(0, 1 + 1) ;; No split depth; No TickTock
+            .store_dict(treasury_pool_code) ;; Code
+            .store_dict(;; Data
+                    pack_treasury_pool_data(owner_address, nft_item_address)
+            )
+            .store_uint(0, 1) ;; Empty libraries
+            .end_cell();
+}
+
+slice calculate_treasury_pool_address_by_state(cell state_init) inline {
+    return begin_cell().store_uint(4, 3) ;; 0b100 = addr_std$10 tag; No anycast
+            .store_int(workchain(), 8)
+            .store_uint(cell_hash(state_init), 256)
+            .end_cell()
+            .begin_parse();
+}
+
+slice calculate_treasury_pool_address(slice owner_address, slice nft_item_address, cell treasury_pool_code) inline {
+    return calculate_treasury_pool_address_by_state(calculate_treasury_pool_state_init(owner_address, nft_item_address, treasury_pool_code));
+}
