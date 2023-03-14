@@ -62,7 +62,7 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
     .store_coins(withdraw_amount)
     .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1) ;; see more detail in message scheme
     .end_cell();
-    send_raw_message(msg, 2);
+    send_raw_message(msg, 0);
     int remain = deposit - withdraw_amount ;
     (deposit_pool, _) = dict_set_slice_int(deposit_pool, 267, receiver, remain, 257);
     save_data();
@@ -136,7 +136,7 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
         int value = cs~load_coins();
         throw_if(400, value < repay_amount);
         deposit(investor,repay_amount);
-        dict_delete(loan_pool, 267, item);
+        (loan_pool, ok) = dict_delete(loan_pool, 267, item);
         save_data();
     }
 
@@ -149,7 +149,7 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
 
         throw_if(400, (now() < (start_time + duration)) );
         transfer_bond(borrower, investor, item);
-        dict_delete(loan_pool, 267, item);
+        (loan_pool, ok) = dict_delete(loan_pool, 267, item);
         save_data();
     }
 
@@ -198,7 +198,7 @@ cell get_loan(slice item) method_id {
 
 
 slice get_version() method_id {
-    return "v0.1";
+    return "v0.2";
 } 
 
 
