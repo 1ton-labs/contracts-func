@@ -28,28 +28,27 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
 ;;  cell content
 ;;
 
-(int, int, int, slice, slice, slice, cell) load_data() {
+(int, int, slice, slice, int, slice, cell) load_data() {
     slice ds = get_data().begin_parse();
-    var (index, activate_time, collection_address, lending_protocol_address) = (
-        ds~load_uint(64),
+    var (index, collection_address, lending_protocol_address) = (
         ds~load_uint(64),
         ds~load_msg_addr(),
         ds~load_msg_addr()
     );
     if (ds.slice_bits() > 0) {
-        return (-1, index, activate_time, collection_address, lending_protocol_address, ds~load_msg_addr(), ds~load_ref() );
+        return (-1, index, collection_address, lending_protocol_address, ds~load_uint(64), ds~load_msg_addr(), ds~load_ref() );
     } else {  
-        return (0, index, 0, collection_address, lending_protocol_address, null(), null()); ;; nft not initialized yet
+        return (0, index, collection_address, lending_protocol_address, 0, null(), null()); ;; nft not initialized yet
     }
 }
 
-() store_data(int index, int activate_time, slice collection_address, slice lending_protocol_address, slice owner_address, cell content) impure {
+() store_data(int index, slice collection_address, slice lending_protocol_address, int activate_time, slice owner_address, cell content) impure {
     set_data(
         begin_cell()
             .store_uint(index, 64)
-            .store_uint(activate_time, 64)
             .store_slice(collection_address)
             .store_slice(lending_protocol_address)
+            .store_uint(activate_time, 64)
             .store_slice(owner_address)
             .store_ref(content)
             .end_cell()
@@ -101,7 +100,7 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
         send_msg(response_destination, rest_amount, op::excesses(), query_id, null(), 1); ;; paying fees, revert on errors
     }
 
-    store_data(index, 0, collection_address, lending_protocol_address, new_owner_address, content);
+    store_data(index, collection_address, lending_protocol_address, 0, new_owner_address, content);
 }
 
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
@@ -126,16 +125,16 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
     (
         int init?,
         int index,
-        int activate_time,
         slice collection_address,
         slice lending_protocol_address,
+        int activate_time,
         slice owner_address,
         cell content
     ) = load_data();
 
     if (~ init?) {
         throw_unless(405, equal_slices(collection_address, sender_address));
-        store_data(index, 0, collection_address, lending_protocol_address, in_msg_body~load_msg_addr(), in_msg_body~load_ref());
+        store_data(index, collection_address, lending_protocol_address, 0, in_msg_body~load_msg_addr(), in_msg_body~load_ref());
         return ();
     }
 
@@ -153,18 +152,18 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
     if (op == 3) { ;; burn
         throw_unless(401, equal_slices(sender_address, owner_address));
         owner_address = begin_cell().store_uint(0,2).end_cell().begin_parse();
-        store_data(index, 0, collection_address, lending_protocol_address, owner_address, content);
+        store_data(index, collection_address, lending_protocol_address, 0, owner_address, content);
         return ();
     }
     if (op == 4) { ;; activate
         throw_unless(401, equal_slices(sender_address, owner_address));
-        throw_unless(410, activate_time != 0);  ;; only activate once
-        store_data(index, now(), collection_address, lending_protocol_address, owner_address, content);
+        throw_unless(410, activate_time == 0);  ;; only activate once
+        store_data(index, collection_address, lending_protocol_address, now(), owner_address, content);
         return ();
     }
     if (op == 5) { ;; deactivate
         throw_unless(401, equal_slices(sender_address, owner_address));
-        store_data(index, 0, collection_address, lending_protocol_address, owner_address, content);
+        store_data(index, collection_address, lending_protocol_address, 0, owner_address, content);
         return ();
     }
     throw(0xffff);
@@ -178,9 +177,9 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
     (
         int init?,
         int index,
-        int activate_time,
         slice collection_address,
         slice lending_protocol_address,
+        int activate_time,
         slice owner_address,
         cell content
     ) = load_data();

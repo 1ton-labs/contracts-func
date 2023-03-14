@@ -51,9 +51,9 @@ async function main(){
     console.log(`collection metadata(content) : ${decodeCollectionContent(collectionMeta.collection_content)}`)
     console.log(`collection lending address : ${collectionMeta.lending_protocol_address}`)
     console.log(`item contract address : ${itemAddress || "not found"}`)
-    console.log(`---------------------------------------------------`)
+    console.log('---------------------------------------------------')
 
-    await new Promise(f => setTimeout(f, 5 * 1000));
+    await new Promise(f => setTimeout(f, 15 * 1000));
 
     if (itemAddress) {
         await upsertEnvironmentVariable('ITEM_ADDRESS', itemAddress.toString());
@@ -66,20 +66,26 @@ async function main(){
         console.log(`lending_address = ${nftData.lending_address.toString()}`);
         console.log(`owner = ${nftData.owner_address?.toString()}`);
         console.log(`content = ${nftData.content?.toString()}`);
-        return
+        console.log('---------------------------------------------------');
 
         // Check activation
-        console.log('Check activation...');
+        console.log('-----------------Check activation!-----------------');
         console.log('Activating...')
         await bondItem.sendActivate(walletContract.sender(keyPair.secretKey), toNano("0.03"));
+        await new Promise(f => setTimeout(f, 15 * 1000));
+
         nftData = await bondItem.getNftData();
         console.log(`activate_time = ${nftData.activate_time}`);
         console.log(`timestamp = ${new Date().getTime() / 1000}`);
+        console.log('---------------------------------------------------');
 
         console.log('Deactivating...')
         await bondItem.sendDeactivate(walletContract.sender(keyPair.secretKey), toNano("0.03"));
+        await new Promise(f => setTimeout(f, 15 * 1000));
+
         nftData = await bondItem.getNftData();
         console.log(`activate_time = ${nftData.activate_time}`);
+        console.log('---------------------------------------------------');
 
         console.log('Re-activating...')
         await bondItem.sendActivate(walletContract.sender(keyPair.secretKey), toNano("0.03"));
@@ -94,6 +100,8 @@ async function main(){
                 forwardPayload: beginCell().endCell(),
             },
         );
+        await new Promise(f => setTimeout(f, 15 * 1000));
+
         nftData = await bondItem.getNftData();
         console.log(`activate_time = ${nftData.activate_time}`);
     }

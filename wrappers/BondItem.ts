@@ -80,7 +80,7 @@ export class BondItem implements Contract {
 
     async getNftData(provider: ContractProvider) {
         const result = await provider.get('get_nft_data', []);
-        console.log(result.stack)
+
         return {
             init: result.stack.readNumber(),
             index: result.stack.readNumber(),
