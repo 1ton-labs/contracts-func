@@ -5,6 +5,9 @@ const replace = require('replace-in-file');
 const ENV_FILE_LOCATION = ".env"
 dotenv.config()
 
+export const FUNC_COIN_LENGTH = 120;
+export const FUNC_INT_LENGTH = 257;
+
 export async function getKeyFromEnv():Promise<KeyPair>{
     if (!process.env.MNEMONIC) throw new Error(`MNEMONIC not found, check .env file`)
     let mnemonics = process.env.MNEMONIC;
