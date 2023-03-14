@@ -115,9 +115,9 @@ export class Lending implements Contract {
         })
     }
 
-    async sendClaim(provider: ContractProvider, via: Sender, item:Address){
+    async sendClaim(provider: ContractProvider, via: Sender, value: bigint, item:Address){
         await provider.internal(via, {
-            value: toNano("0.01"),
+            value: value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
             body: beginCell()
             .storeUint(Opcodes.CLAIM, 32) // op

@@ -33,6 +33,7 @@ async function main(){
         console.log(`init = ${nftData.init}`);
         console.log(`index = ${nftData.index}`);
         console.log(`collection_address = ${nftData.collection_address.toString()}`);
+        console.log(`lending_address = ${nftData.lending_address.toString()}`);
         console.log(`owner = ${nftData.owner_address?.toString()}`);
         console.log(`content = ${nftData.content?.toString()}`);
 
