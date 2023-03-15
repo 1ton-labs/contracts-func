@@ -44,7 +44,7 @@ int min_tons_for_withdraw() asm "10000000 PUSHINT"; ;; 0.03 TON
             .store_coins(send_amount)
             .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1) ;; see more detail in message scheme
             .end_cell();
-    send_raw_message(msg, 0);
+    send_raw_message(msg, 1);
     int new_balance = balance - withdraw_amount;
     return new_balance;
 }
@@ -64,13 +64,8 @@ int min_tons_for_withdraw() asm "10000000 PUSHINT"; ;; 0.03 TON
     slice sender_address = cs~load_msg_addr();
     var (init, treasury_admin_address, nft_item_address, owner_address, balance) = load_data();
 
-    ;;     if (1) {
-    ;;         store_data(treasury_admin_address, nft_item_address, sender_address, 0);
-    ;;         return ();
-    ;;     }
 
     if (~ init) {
-        ;;         throw_if(404,1);
         throw_unless(405, equal_slices(treasury_admin_address, sender_address));
         store_data(treasury_admin_address, nft_item_address, in_msg_body~load_msg_addr(), 0);
         return ();
