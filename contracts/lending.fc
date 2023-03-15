@@ -136,6 +136,7 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
         int value = cs~load_coins();
         throw_if(400, value < repay_amount);
         deposit(investor,repay_amount);
+        withdraw(investor,investor,repay_amount);
         (loan_pool, ok) = dict_delete(loan_pool, 267, item);
         save_data();
     }
