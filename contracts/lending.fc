@@ -53,8 +53,8 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
     save_data();
 }
 
-() withdraw(slice receiver, int withdraw_amount) impure {
-    int deposit = null?(deposit_pool)? 0 : dict_get_slice_int(deposit_pool, 267, receiver, 257);  
+() withdraw(slice receiver, slice depositor, int withdraw_amount) impure {
+    int deposit = null?(deposit_pool)? 0 : dict_get_slice_int(deposit_pool, 267, depositor, 257);  
     throw_unless(400, withdraw_amount <= deposit );
     var msg = begin_cell()
     .store_uint(0x18, 6) ;; 0b011000 int_msg_info, instant hypercube routing, bounceable message, message is not the result of bouncing itself, addr_none(self)
@@ -64,7 +64,7 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
     .end_cell();
     send_raw_message(msg, 0);
     int remain = deposit - withdraw_amount ;
-    (deposit_pool, _) = dict_set_slice_int(deposit_pool, 267, receiver, remain, 257);
+    (deposit_pool, _) = dict_set_slice_int(deposit_pool, 267, depositor, remain, 257);
     save_data();
 }
 
@@ -79,7 +79,7 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
     throw_unless(409, null?(loan_cell));
 
     transfer_bond(sender ,my_address() ,item);
-    withdraw(sender,amount);
+    withdraw(sender, investor, amount);
 
     cell loan = begin_cell()
     .store_slice(investor)
@@ -162,7 +162,7 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
 
     if (op == 5){ ;; withdraw
         int withdraw_amount = in_msg_body~load_uint(120);
-        withdraw(sender,withdraw_amount);
+        withdraw(sender, sender, withdraw_amount);
     }
 }
 
