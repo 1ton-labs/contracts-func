@@ -44,7 +44,7 @@ int min_tons_for_withdraw() asm "10000000 PUSHINT"; ;; 0.03 TON
             .store_coins(send_amount)
             .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1) ;; see more detail in message scheme
             .end_cell();
-    send_raw_message(msg, 0);
+    send_raw_message(msg, 1);
     int new_balance = balance - withdraw_amount;
     return new_balance;
 }
