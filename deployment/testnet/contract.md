@@ -1,8 +1,8 @@
 | Contract               | Address                                          |
 |------------------------|--------------------------------------------------|
-| Lending Protocol       | EQAIefY60EHhwfU8OxZkZVAi8GSMQ6anVRQp6QGV1TuWSSnr |
+| Lending Protocol       | EQDsh1esONyd_i1r9v6q_dLrLl6HrQ1ysWUxRIFQmjXfvQI0 |
 | Lending Protocol Owner | EQDqK0kckYOipLsMnpWFdF-AMAUeHcwca6ylMvZqjF_Aopdq |
-| Bond NFT               | EQAol-5Ae0Yp1ktOGAy6g17L70G0pPBXnFXzdw2glCADyn3O |
+| Bond NFT               | EQCJ8rb6_TPQn-LfvRaLOy55lbEkt-rf5Phew9zvPKjPabo4 |
 | Treasury Admin         | EQDeIZeUcpCvZPWoXFEr2gAWMUYihpoZKXcNuhKOtQhT9fPM |
 | Treasury Owner         | EQDqK0kckYOipLsMnpWFdF-AMAUeHcwca6ylMvZqjF_Aopdq |
 | Treasury Pool          | EQC6Pr6Ie8tOs-5p3KOgQ7tTvFm1KMisIm64HzK_AdeZfpQ4 |
