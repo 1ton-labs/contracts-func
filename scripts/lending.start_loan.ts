@@ -39,7 +39,7 @@ async function main(){
     }
 
     const { collection: collectionAddress, item: itemAddress } = getItemForEnv();
-    await lending.sendStartLoan(walletContract.sender(keyPair.secretKey), toNano("0.02"), {
+    await lending.sendStartLoan(walletContract2.sender(keyPair2.secretKey), toNano("0.02"), {
         investor: walletContract.address,
         item: Address.parse(itemAddress),
         amount: toNano("0.03"),

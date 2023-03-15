@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import { Address, toNano, TonClient4, WalletContractV4 } from "ton";
 
-import { getCollectionForEnv, getKeyFromEnv, upsertEnvironmentVariable } from "../utils/helpers";
+import { getCollectionForEnv, getKeyFromEnv2, upsertEnvironmentVariable } from "../utils/helpers";
 import { decodeCollectionContent } from "../utils/metadata";
 import { Bond } from '../wrappers/Bond';
 import { BondItem } from '../wrappers/BondItem';
@@ -11,7 +11,7 @@ async function main(){
     const client4 = new TonClient4({
         endpoint: "https://sandbox-v4.tonhubapi.com"
     })
-    let keyPair = await getKeyFromEnv()
+    let keyPair = await getKeyFromEnv2()
     let workchain = 0;
     
     let wallet = WalletContractV4.create({ workchain, publicKey: keyPair.publicKey});
