@@ -39,6 +39,26 @@ export function getItemForEnv():{collection:string,item:string}{
     }
 }
 
+export function getTreasuryAdminForEnv():string{
+    if (!process.env.TREASURY_ADMIN_ADDRESS) throw new Error(`TREASURY_ADMIN_ADDRESS not found, check .env file`)
+    const treasury = process.env.TREASURY_ADMIN_ADDRESS;
+    return treasury
+}
+
+export function getTreasuryPoolOwnerForEnv():string{
+    if (!process.env.TREASURY_POOL_OWNER_ADDRESS) throw new Error(`TREASURY_POOL_OWNER_ADDRESS not found, check .env file`)
+    const owner = process.env.TREASURY_POOL_OWNER_ADDRESS;
+    return owner
+}
+
+export function getTreasuryPoolForEnv():{treasuryAdmin:string,treasuryPool:string}{
+    if (!process.env.TREASURY_ADMIN_ADDRESS) throw new Error(`TREASURY_ADMIN_ADDRESS not found, check .env file`)
+    if (!process.env.TREASURY_POOL_ADDRESS) throw new Error(`TREASURY_POOL_ADDRESS not found, check .env file`)
+    const treasuryAdmin = process.env.TREASURY_ADMIN_ADDRESS;
+    const treasuryPool = process.env.TREASURY_POOL_ADDRESS;
+    return {treasuryPool,treasuryAdmin}
+}
+
 export async function upsertEnvironmentVariable(key: string, content: string){
     fs.readFile(ENV_FILE_LOCATION, function (err, data) {
         if (err) throw err;
