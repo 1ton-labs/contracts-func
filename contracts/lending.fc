@@ -41,7 +41,7 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
         .end_cell()
     )
      .end_cell();
-    send_raw_message(msg, 2);
+    send_raw_message(msg, 0);
 }
 
 
@@ -178,12 +178,8 @@ cell get_loan_pool() method_id {
 
 int get_deposit_value(slice user) method_id {
     load_data();
-    int deposit = null?(deposit_pool)? 0 : dict_get_slice_int(deposit_pool, 267, user, 257);  
-    if(not_null(deposit)){
-        return deposit ;
-    } else {
-        return -1;
-    }
+    int deposit = dict_empty?(deposit_pool)? 0 : dict_get_slice_int(deposit_pool, 267, user, 257);  
+    return deposit ;
 }
 
 cell get_loan(slice item) method_id {
@@ -197,5 +193,8 @@ cell get_loan(slice item) method_id {
 }
 
 slice get_version() method_id {
-    return "v0.2";
+    return "v0.5";
 } 
+
+
+
