@@ -192,9 +192,8 @@ cell get_loan(slice item) method_id {
     }
 }
 
-
 slice get_version() method_id {
-    return "v0.42";
+    return "v0.5";
 } 
 
 

@@ -186,3 +186,7 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
 
     return (init?, index, activate_time, collection_address, owner_address, content, lending_protocol_address);
 }
+
+slice get_version() method_id {
+    return "v0.1";
+}
