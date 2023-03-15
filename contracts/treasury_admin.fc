@@ -14,7 +14,7 @@ int min_tons_for_create_pool() asm "30000000 PUSHINT"; ;; 0.03 TON
 
 () save_data(int index, slice owner_address, cell pool_code) impure {
     set_data(
-            begin_cell()
+        begin_cell()
                     .store_uint(index, 64)
                     .store_slice(owner_address)
                     .store_ref(pool_code)
@@ -50,7 +50,6 @@ int min_tons_for_create_pool() asm "30000000 PUSHINT"; ;; 0.03 TON
 
     slice sender_address = cs~load_msg_addr();
     var (index, owner_address, pool_code) = load_data();
-    throw_unless(401, equal_slices(sender_address, owner_address));
 
     int op = in_msg_body~load_uint(32);
     int query_id = in_msg_body~load_uint(64);
