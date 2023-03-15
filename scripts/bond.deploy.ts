@@ -30,7 +30,7 @@ async function main() {
     const bondItemCode = await compile('BondItem');
     let collection = client4.open(Bond.createFromConfig({
         owner_address: wallet.address,
-        next_item_index: 1,
+        next_item_index: 0,
         content: content,
         nft_item_code: bondItemCode,
         lending_protocol_address: Address.parse(lendingAddress),

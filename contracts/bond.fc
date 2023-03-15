@@ -126,3 +126,7 @@ cell get_nft_content(int index, cell individual_nft_content) method_id {
                       .store_ref(individual_nft_content)
           .end_cell());
 }
+
+slice get_version() method_id {
+    return "v0.1";
+}
