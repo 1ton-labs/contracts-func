@@ -17,7 +17,7 @@ int dict_get_slice_int(cell dict, int key_len, slice index, int value_len) inlin
     if (ok) {
         return r~load_int(value_len);
     } else {
-        return null();
+        return 0;
     }
 }
 
