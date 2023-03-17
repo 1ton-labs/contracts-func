@@ -1,82 +1,90 @@
-# TON project template (RFC)
+# 1TON Smart Contracts
 
-Starter template for a new TON project - FunC contracts, unit tests, compilation and deployment scripts.
+This reposity contains the smart contracts of 1TON Treasury and 1TON Finance. The smart contracts are implemented in [FunC](https://ton.org/docs/develop/func/overview).
 
-> This repo is a work in progress and is subject to change
 
-## Layout
+## User Flow
 
--   `contracts` - contains the source code of all the smart contracts of the project and their dependencies.
--   `wrappers` - contains the wrapper classes (implementing `Contract` from ton-core) for the contracts, including any [de]serialization primitives and compilation functions.
--   `tests` - tests for the contracts. Would typically use the wrappers.
--   `scripts` - contains scripts used by the project, mainly the deployment scripts.   
-
-We ask the community to provide any comments on this layout, the wanted/required changes, or even suggestions for entirely different project structures and/or tool concepts.
-
-PRs are welcome!
-
-## Repo contents / tech stack
-1. Compiling FunC - [https://github.com/ton-community/func-js](https://github.com/ton-community/func-js)
-2. Testing TON smart contracts - [https://github.com/ton-community/sandbox/](https://github.com/ton-community/sandbox/)
-3. Deployment of contracts is supported with [TON Connect 2](https://github.com/ton-connect/), [Tonhub wallet](https://tonhub.com/) or via a direct `ton://` deeplink
-
-## How to use
-* Clone this repo
-* Run `yarn install`
-
-### Building a contract
-1. Interactively
-   1. Run `yarn blueprint build`
-   2. Choose the contract you'd like to build
-1. Non-interactively
-   1. Run `yarn blueprint build <CONTRACT>`
-   2. example: `yarn blueprint build pingpong`
-
-### Deploying a contract
-1. Interactively
-   1. Run `yarn blueprint run`
-   2. Choose the contract you'd like to deploy
-   3. Choose whether you're deploying on mainnet or testnet
-   4. Choose how to deploy:
-      1. With a TON Connect compatible wallet
-      2. A `ton://` deep link / QR code
-      3. Tonhub wallet
-   5. Deploy the contract
-2. Non-interactively
-   1. Run `yarn blueprint run <CONTRACT> --<NETWORK> --<DEPLOY_METHOD>`
-   2. example: `yarn blueprint run pingpong --mainnet --tonconnect`
-
-### Testing
-1. Run `yarn test`
-
-## Adding your own contract
-1. Run `yarn blueprint create <CONTRACT>`
-2. example: `yarn blueprint create MyContract`
-
-* Write code
-  * FunC contracts are located in `contracts/*.fc`
-    * Standalone root contracts are located in `contracts/*.fc`
-    * Shared imports (when breaking code to multiple files) are in `contracts/imports/*.fc`
-  * Tests in TypeScript are located in `test/*.spec.ts`
-  * Wrapper classes for interacting with the contract are located in `wrappers/*.ts`
-  * Any scripts (including deployers) are located in `scripts/*.ts`
-
-* Build
-  * Builder configs are located in `wrappers/*.compile.ts`
-  * In the root repo dir, run in terminal `yarn blueprint build`
-  * Compilation errors will appear on screen, if applicable
-  * Resulting build artifacts include:
-    * `build/*.compiled.json` - the binary code cell of the compiled contract (for deployment). Saved in a hex format within a json file to support webapp imports
-
-* Test
-  * In the root repo dir, run in terminal `yarn test`
-  * Don't forget to build (or rebuild) before running tests
-  * Tests are running inside Node.js by running TVM in web-assembly using [sandbox](https://github.com/ton-community/sandbox)
-
-* Deploy
-  * Run `yarn blueprint run <deployscript>`
-  * Contracts will be rebuilt on each execution
-  * Follow the on-screen instructions of the deploy script
+There are 4 main operations in 1TON:
+1. Mint Bond
+2. Borrow and Lend
+3. Repay
+4. Liquidate
   
-# License
-MIT
+### 1. Mint Bond
+
+```mermaid
+graph LR;
+  A[Creator];
+  B[Treasury];
+  B1[Treasury Data Provider];
+  E[Creator Platform];
+  X[CyberConnect];
+  Y[On-Chain Data];
+  A--Register and Mint-->B;
+  B--Issue an bond NFT-->A;
+  E--Provide creator's financial record-->B1;
+  X--Social graph data-->B1;
+  Y--"Lens, Mirror, etc."-->B1;
+  B1-->B;
+```
+
+### 2. Borrow and Lend
+
+```mermaid
+graph LR;
+  A[Creator];
+  C[Lending Protocol];
+  D[Investor];
+  A--List the NFT-->C;
+  C--Show all listed NFTs-->D;
+  D--Create an offer-->C;
+  A--Accept the offer, Get the money and Transfer the NFT-->C;
+```
+
+### 3. Repay
+
+```mermaid
+graph LR;
+  A[Creator];
+  C[Lending Protocol];
+  A--Pay the money back-->C;
+  C--Transfer the NFT-->A;
+```
+
+### 4. Liquidate
+
+```mermaid
+graph LR;
+  C[Lending Protocol];
+  D[Investor];
+  T[Treasury];
+  E[Creator Platform];
+  C--Investor claims the NFT-->D;
+  D--Redirect creator income-->T;
+  E--Deposit the creator income-->T;
+  T--Transfer the bond NFT and withdraw the money-->D;
+```
+
+## Structure
+
+-   `contracts` contains the source code of all the smart contracts and their dependencies.
+-   `wrappers` contains the wrapper classes, which are implemented from `Contract` of `ton-core`, for the contracts. including any [de]serialization primitives and compilation functions.
+-   `tests` tests for the contracts. Would typically use the wrappers.
+-   `scripts` contains the deployment and testing scripts.
+
+## Smart Contracts
+
+The 1TON smart contract can be divided to three parts: 
+
+- Bond - Represents the real world assets. 
+  - `bond.fc` - The implementation of immutable NTF collection.
+  - `bond-item.fc` - The implementation of immutable NTF item, which stores the bond terms and the creator information. 
+- Lending Protocol - A peer-to-peer NFT lending protocol.
+  - `lending.fc` - Stores the loan terms.
+- Treasury - The creator's income is redirected to the Treasury if the corresponding Bond NFT is active, which usually means that a lender liquidate the Bond NFT from an expired loan.
+  - `treasury_admin.fc` - Manage treasury pool 
+  - `treasury_pool.fc` - Where real cash flow happens 
+
+The smart contracts were deployed at the TON testnet.
+Please find the details [here](https://github.com/1ton-labs/contract-func/blob/main/deployment/testnet/contract.md).
