@@ -1,6 +1,12 @@
 #include "imports/stdlib.fc";
 #include "imports/params.fc";
 
+{-
+// This code packs the treasury pool data into a cell
+// owner_address: the address of the owner of the NFT item
+// nft_item_address: the address of the NFT item
+// returns: a cell containing the packed treasury pool data
+-}
 cell pack_treasury_pool_data(slice owner_address, slice nft_item_address) inline {
     return begin_cell()
             .store_slice(owner_address)
@@ -8,17 +14,32 @@ cell pack_treasury_pool_data(slice owner_address, slice nft_item_address) inline
             .end_cell();
 }
 
+
+{-
+// This function calculates the initial state of the treasury pool contract.
+// Treasury pool contract code is passed as a parameter.
+// The owner address and nft item address are also passed as parameters.
+// The owner address is the address of the pool owner.
+// The nft item address is the address of the nft item that is used as the
+// collateral for the pool.
+-}
 cell calculate_treasury_pool_state_init(slice owner_address, slice nft_item_address, cell treasury_pool_code) inline {
     return begin_cell()
             .store_uint(0, 1 + 1) ;; No split depth; No TickTock
             .store_dict(treasury_pool_code) ;; Code
             .store_dict(;; Data
-                    pack_treasury_pool_data(owner_address, nft_item_address)
-            )
+        pack_treasury_pool_data(owner_address, nft_item_address)
+    )
             .store_uint(0, 1) ;; Empty libraries
             .end_cell();
 }
 
+{-
+// Calculate the address of the Treasury Pool smart contract in the TON blockchain
+// by the state of the smart contract.
+// state_init - state of the Treasury Pool smart contract.
+// return - address of the Treasury Pool smart contract in the TON blockchain.
+-}
 slice calculate_treasury_pool_address_by_state(cell state_init) inline {
     return begin_cell().store_uint(4, 3) ;; 0b100 = addr_std$10 tag; No anycast
             .store_int(workchain(), 8)
@@ -27,6 +48,12 @@ slice calculate_treasury_pool_address_by_state(cell state_init) inline {
             .begin_parse();
 }
 
+
+{-
+// This function calculates the address of the treasury pool.
+// The function returns the treasury pool address.
+// The function takes the owner address, nft item address, and treasury pool code as parameters.
+-}
 slice calculate_treasury_pool_address(slice owner_address, slice nft_item_address, cell treasury_pool_code) inline {
     return calculate_treasury_pool_address_by_state(calculate_treasury_pool_state_init(owner_address, nft_item_address, treasury_pool_code));
 }

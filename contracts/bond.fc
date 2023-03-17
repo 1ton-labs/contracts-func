@@ -33,6 +33,14 @@
     .end_cell());
 }
 
+{-
+// This function initializes the state of an nft item, which will later be stored on the blockchain.
+// It takes the following parameters:
+// - item_index: The index of the item in the nft items list.
+// - nft_item_code: The code of the nft item that will be initialized.
+// - lending_protocol_address: The address of the lending protocol.
+// The function returns the initialized nft item state.
+-}
 cell calculate_nft_item_state_init(int item_index, cell nft_item_code, slice lending_protocol_address) {
     cell data = begin_cell()
       .store_uint(item_index, 64)
@@ -102,19 +110,31 @@ slice calculate_nft_item_address(int wc, cell state_init) {
 }
 
 ;; Get methods
-
+{-
+// this function gets the next item in the collection and returns 
+// the next item index, the item itself, the owner address, and the lending protocol address
+-}
 (int, cell, slice, slice) get_collection_data() method_id {
     var (owner_address, next_item_index, content, _, lending_protocol_address) = load_data();
     slice cs = content.begin_parse();
     return (next_item_index, cs~load_ref(), owner_address, lending_protocol_address);
 }
 
+{-
+// This function gets the address of an NFT item by index.
+// The NFT item is specified by the index of the NFT item.
+-}
 slice get_nft_address_by_index(int index) method_id {
     var (_, _, _, nft_item_code, lending_protocol_address) = load_data();
     cell state_init = calculate_nft_item_state_init(index, nft_item_code, lending_protocol_address);
     return calculate_nft_item_address(workchain(), state_init);
 }
 
+{-
+// This function takes the index of the NFT and the individual NFT's content, and returns the offchain content for the NFT
+// The individual NFT content is stored in the offchain data of the NFT, and the common content is stored in the contract's data.
+// The function returns the offchain content, which is a cell containing the offchain tag, the common content, and the individual NFT content.
+-}
 cell get_nft_content(int index, cell individual_nft_content) method_id {
     var (_, _, content, _, _) = load_data();
     slice cs = content.begin_parse();
@@ -127,6 +147,10 @@ cell get_nft_content(int index, cell individual_nft_content) method_id {
           .end_cell());
 }
 
+{-
+// This function returns a string containing the version of the contract
+// that is stored in the blockchain. 
+-}
 slice get_version() method_id {
     return "v0.1";
 }

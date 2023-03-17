@@ -24,6 +24,8 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
 ;;
 ;;  uint64 index
 ;;  MsgAddressInt collection_address
+;;  MsgAddressInt lending_protocol_address
+;;  uint64 activate_time
 ;;  MsgAddressInt owner_address
 ;;  cell content
 ;;
@@ -55,6 +57,11 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
     );
 }
 
+{-
+// This function sends a message to a given address with a given amount of grams, operation type, and query id.
+// It also accepts an optional builder which is used to construct the message body.
+// The message is sent with a given send_mode.
+-}
 () send_msg(slice to_address, int amount, int op, int query_id, builder payload, int send_mode) impure inline {
     var msg = begin_cell()
     .store_uint(0x10, 6) ;; nobounce - int_msg_info$0 ihr_disabled:Bool bounce:Bool bounced:Bool src:MsgAddress -> 010000
@@ -71,6 +78,29 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
     send_raw_message(msg.end_cell(), send_mode);
 }
 
+
+{-
+// This function is called when user wants to transfer ownership to someone else
+// If user wants to transfer ownership to himself, he should call self_transfer
+// This function can be called only by owner_address or lending_protocol_address
+// Params:
+//  - my_balance: balance of this contract
+//  - index: index of nft in collection
+//  - collection_address: address of collection
+//  - owner_address: address of owner
+//  - content: content of nft
+//  - sender_address: address of sender
+//  - query_id: query id of sender message
+//  - in_msg_body: body of sender message
+//  - fwd_fees: fees for sending messages
+//  - lending_protocol_address: address of lending protocol
+// Returns:
+//  - throws if sender is not owner or lending protocol
+//  - throws if balance is not enough to pay fees
+//  - throws if not enought bits in in_msg_body
+//  - sends excesses to response_destination
+//  - sends ownership_assigned message to new_owner_address
+-}
 () transfer_ownership(int my_balance, int index, slice collection_address, slice owner_address, cell content, slice sender_address, int query_id, slice in_msg_body, int fwd_fees, slice lending_protocol_address) impure inline {
     throw_unless(401, equal_slices(sender_address, owner_address) | equal_slices(sender_address, lending_protocol_address));
 
@@ -173,6 +203,17 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
 ;;  GET Methods
 ;;
 
+{-
+// This function is used to get data from the nft cell.
+// The function returns the data:
+// init? - whether the cell is initialized
+// index - index of the nft in the collection
+// activate_time - time when the nft was activated
+// collection_address - address of the collection
+// owner_address - address of the owner
+// content - the content of the nft
+// lending_protocol_address - the address of the lending protocol
+-}
 (int, int, int, slice, slice, cell, slice) get_nft_data() method_id {
     (
         int init?,
@@ -187,6 +228,10 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
     return (init?, index, activate_time, collection_address, owner_address, content, lending_protocol_address);
 }
 
+{-
+// This function returns a string containing the version of the contract
+// that is stored in the blockchain. 
+-}
 slice get_version() method_id {
     return "v0.1";
 }

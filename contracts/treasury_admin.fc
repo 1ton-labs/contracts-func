@@ -22,6 +22,12 @@ int min_tons_for_create_pool() asm "30000000 PUSHINT"; ;; 0.03 TON
     );
 }
 
+{-
+// This function creates a new treasury pool, which is a contract that allows users to send tokens to the pool, and receive tokens from the pool in exchange.
+// The pool code is the code of the contract that will be deployed to the address of the pool.
+// The send amount is the amount of nanograms of the pool currency that will be sent to the pool.
+// The pool content is the initial state of the pool. It must contain a public key, and the pool address. In addition, it may contain any other data that the pool code requires.
+-}
 () create_pool(slice nft_item_address, cell pool_code, int send_amount, cell pool_content) impure {
     cell state_init = calculate_treasury_pool_state_init(my_address(), nft_item_address, pool_code);
     slice pool_address = calculate_treasury_pool_address_by_state(state_init);
@@ -64,6 +70,11 @@ int min_tons_for_create_pool() asm "30000000 PUSHINT"; ;; 0.03 TON
     throw(0xffff);
 }
 
+{-
+// This function is called by a treasury contract to calculate the address of a treasury pool.
+// nft_item_address - the address of the NFT item whose address is to be calculated.
+// returns the address of the treasury pool.
+-}
 (slice) get_treasury_pool_address(slice nft_item_address) method_id {
     var (index, owner_address, pool_code) = load_data();
     slice pool_address = calculate_treasury_pool_address(my_address(), nft_item_address, pool_code);
