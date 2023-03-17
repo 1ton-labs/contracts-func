@@ -86,3 +86,5 @@ The 1TON smart contract can be divided to three parts:
   - `treasury_admin.fc` - Manage treasury pool 
   - `treasury_pool.fc` - Where real cash flow happens 
 
+The smart contracts were deployed at the TON testnet.
+Please find the details [here](https://github.com/1ton-labs/contract-func/blob/main/deployment/testnet/contract.md).
