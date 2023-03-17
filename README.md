@@ -5,8 +5,8 @@ This reposity contains the smart contracts of 1TON Treasury and 1TON Finance. Th
 
 ## User Flow 
   
-  1. Mint Bond
-    ![creator mint bond](https://1ton-static.s3.ap-south-1.amazonaws.com/creator-bond.png)
+### 1. Mint Bond
+
 ```mermaid
 graph LR;
   A[Creator];
@@ -18,47 +18,47 @@ graph LR;
   A--Register and Mint-->B;
   B--Issue an bond NFT-->A;
   E--Provide creator's financial record-->B1;
-  X--Social Graph Data-->B1;
+  X--Social graph data-->B1;
   Y--"Lens, Mirror, etc."-->B1;
   B1-->B;
 ```
 
   2. Borrow And Lend
-    ```mermaid
-    graph LR
-      A[Creator]
-      C[Lending Protocol]
-      D[Investor]
-      A--List the NFT-->C
-      C--Show all listed NFTs-->D
-      D--Create an offer-->C
-      A--Accept the offer, Get the money and Transfer the NFT-->C
-    ```
     ![borrow and lend](https://1ton-static.s3.ap-south-1.amazonaws.com/borrow-lend.png)
+```mermaid
+graph LR;
+  A[Creator];
+  C[Lending Protocol];
+  D[Investor];
+  A--List the NFT-->C;
+  C--Show all listed NFTs-->D;
+  D--Create an offer-->C;
+  A--Accept the offer, Get the money and Transfer the NFT-->C;
+```
 
   3. Repay
-    ```mermaid
-    graph LR
-      A[Creator]
-      C[Lending Protocol]
-      A--Pay the money back-->C
-      C--Transfer the NFT-->A
-    ```
     ![repay](https://1ton-static.s3.ap-south-1.amazonaws.com/repay.png)
+```mermaid
+graph LR;
+  A[Creator];
+  C[Lending Protocol];
+  A--Pay the money back-->C;
+  C--Transfer the NFT-->A;
+```
 
   4. Liquidate
-    ```mermaid
-    graph LR
-      C[Lending Protocol]
-      D[Investor]
-      T[Treasury]
-      E[Creator Platform]
-      C--Investor claims the NFT-->D
-      D--Redirect creator income-->T
-      E--Deposit the creator income-->T
-      T--Transfer the bond NFT and withdraw the money-->D
-    ```
     ![liquidate](https://1ton-static.s3.ap-south-1.amazonaws.com/liquidate.png)
+```mermaid
+graph LR;
+  C[Lending Protocol];
+  D[Investor];
+  T[Treasury];
+  E[Creator Platform];
+  C--Investor claims the NFT-->D;
+  D--Redirect creator income-->T;
+  E--Deposit the creator income-->T;
+  T--Transfer the bond NFT and withdraw the money-->D;
+```
 
 ## Layout
 -   `contracts` - contains the source code of all the smart contracts of the project and their dependencies.
