@@ -24,6 +24,8 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
 ;;
 ;;  uint64 index
 ;;  MsgAddressInt collection_address
+;;  MsgAddressInt lending_protocol_address
+;;  uint64 activate_time
 ;;  MsgAddressInt owner_address
 ;;  cell content
 ;;
