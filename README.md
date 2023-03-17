@@ -66,20 +66,23 @@ graph LR;
   T--Transfer the bond NFT and withdraw the money-->D;
 ```
 
-## Layout
--   `contracts` - contains the source code of all the smart contracts of the project and their dependencies.
--   `wrappers` - contains the wrapper classes (implementing `Contract` from ton-core) for the contracts, including any [de]serialization primitives and compilation functions.
--   `tests` - tests for the contracts. Would typically use the wrappers.
--   `scripts` - contains scripts used by the project.   
+## Structure
 
-## Contracts
-1TON contract can be divided to three parts: 
-- Bond  -  Represent real world assets. 
-  - `bond.fc` - Implementation of immutable NTF Collection.
-  - `bond-item.fc` - Implementation of immutable NTF item ,store creator information. 
-- P2P NFT Lending Protocol - 
-  - `lending.fc` - store loan information ,control life cycle of loan .
-- Treasury - After liquidate, creator platform will redirect income of the creator to treasury pool 
+-   `contracts` contains the source code of all the smart contracts and their dependencies.
+-   `wrappers` contains the wrapper classes, which are implemented from `Contract` of `ton-core`, for the contracts. including any [de]serialization primitives and compilation functions.
+-   `tests` tests for the contracts. Would typically use the wrappers.
+-   `scripts` contains the deployment and testing scripts.
+
+## Smart Contracts
+
+The 1TON smart contract can be divided to three parts: 
+
+- Bond - Represents the real world assets. 
+  - `bond.fc` - The implementation of immutable NTF collection.
+  - `bond-item.fc` - The implementation of immutable NTF item, which stores the bond terms and the creator information. 
+- Lending Protocol - A peer-to-peer NFT lending protocol.
+  - `lending.fc` - Stores the loan terms.
+- Treasury - The creator's income is redirected to the Treasury if the corresponding Bond NFT is active, which usually means that a lender liquidate the Bond NFT from an expired loan.
   - `treasury_admin.fc` - Manage treasury pool 
   - `treasury_pool.fc` - Where real cash flow happens 
 
