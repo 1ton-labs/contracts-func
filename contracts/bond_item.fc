@@ -55,10 +55,6 @@ int min_tons_for_storage() asm "30000000 PUSHINT"; ;; 0.03 TON
     );
 }
 
-
-
-
-
 {-
 // This function sends a message to a given address with a given amount of grams, operation type, and query id.
 // It also accepts an optional builder which is used to construct the message body.
