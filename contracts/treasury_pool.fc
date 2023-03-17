@@ -19,7 +19,7 @@ int min_tons_for_withdraw() asm "10000000 PUSHINT"; ;; 0.03 TON
 
 () store_data(slice treasury_admin_address, slice nft_item_address, slice owner_address, int balance) impure {
     set_data(
-            begin_cell()
+        begin_cell()
                     .store_slice(treasury_admin_address)
                     .store_slice(nft_item_address)
                     .store_slice(owner_address)
@@ -28,12 +28,32 @@ int min_tons_for_withdraw() asm "10000000 PUSHINT"; ;; 0.03 TON
     );
 }
 
+{-
+// this function adds the deposit amount to the balance
+// it is used to increase the balance of an account
+// sender is the account that is making the deposit
+// deposit_amount is the amount of money that the account is depositing
+// balance is the current balance of the account
+-}
 (int) deposit(slice sender, int deposit_amount, int balance) impure {
     throw_unless(500, deposit_amount >= 0);
     int new_balance = balance + deposit_amount;
     return new_balance;
 }
 
+
+{-
+// This code withdraws a specified amount.
+//
+// Arguments:
+//     receiver: the address of the receiver
+//     withdraw_amount: the amount of tokens to withdraw
+//     owner_address: the address of the pool owner
+//     balance: the balance of the pool
+//
+// Returns:
+//     the new balance of the pool
+-}
 (int) withdraw(slice receiver, int withdraw_amount, slice owner_address, int balance) impure {
     throw_unless(501, equal_slices(receiver, owner_address));
     throw_unless(502, balance >= withdraw_amount);
@@ -98,6 +118,10 @@ int min_tons_for_withdraw() asm "10000000 PUSHINT"; ;; 0.03 TON
     throw(0xffff);
 }
 
+{-
+// This code is used to get the pool data, which includes the owner's address
+// and the balance of the pool.
+-}
 (slice, int) get_pool_data() method_id {
     (_, _, _, slice owner_address, int balance) = load_data();
     return (owner_address, balance);
