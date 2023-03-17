@@ -7,19 +7,19 @@ This reposity contains the smart contracts of 1TON Treasury and 1TON Finance. Th
   
   1. Mint Bond
     ```mermaid
-    graph LR
-      A[Creator]
-      B[Treasury]
-      B1[Treasury Data Provider]
-      E[Creator Platform]
-      X[CyberConnect]
-      Y[On-Chain Data]
-      A--Register and Mint-->B
-      B--Issue an bond NFT-->A
-      E--Provide creator's financial record-->B1
-      X--Social Graph Data-->B1
-      Y--"Lens, Mirror, etc."-->B1
-      B1-->B
+    graph LR;
+      A[Creator];
+      B[Treasury];
+      B1[Treasury Data Provider];
+      E[Creator Platform];
+      X[CyberConnect];
+      Y[On-Chain Data];
+      A--Register and Mint-->B;
+      B--Issue an bond NFT-->A;
+      E--Provide creator's financial record-->B1;
+      X--Social Graph Data-->B1;
+      Y--"Lens, Mirror, etc."-->B1;
+      B1-->B;
     ```
     ![creator mint bond](https://1ton-static.s3.ap-south-1.amazonaws.com/creator-bond.png)
 
