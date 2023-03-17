@@ -3,7 +3,13 @@
 This reposity contains the smart contracts of 1TON Treasury and 1TON Finance. The smart contracts are implemented in [FunC](https://ton.org/docs/develop/func/overview).
 
 
-## User Flow 
+## User Flow
+
+There are 4 main operations in 1TON:
+1. Mint Bond
+2. Borrow and Lend
+3. Repay
+4. Liquidate
   
 ### 1. Mint Bond
 
@@ -23,8 +29,8 @@ graph LR;
   B1-->B;
 ```
 
-  2. Borrow And Lend
-    ![borrow and lend](https://1ton-static.s3.ap-south-1.amazonaws.com/borrow-lend.png)
+### 2. Borrow and Lend
+
 ```mermaid
 graph LR;
   A[Creator];
@@ -36,8 +42,8 @@ graph LR;
   A--Accept the offer, Get the money and Transfer the NFT-->C;
 ```
 
-  3. Repay
-    ![repay](https://1ton-static.s3.ap-south-1.amazonaws.com/repay.png)
+### 3. Repay
+
 ```mermaid
 graph LR;
   A[Creator];
@@ -46,8 +52,8 @@ graph LR;
   C--Transfer the NFT-->A;
 ```
 
-  4. Liquidate
-    ![liquidate](https://1ton-static.s3.ap-south-1.amazonaws.com/liquidate.png)
+### 4. Liquidate
+
 ```mermaid
 graph LR;
   C[Lending Protocol];
