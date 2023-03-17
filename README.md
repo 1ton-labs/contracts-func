@@ -6,13 +6,13 @@
   1. Mint Bond
   ![creator mint bond](https://1ton-static.s3.ap-south-1.amazonaws.com/creator-bond.png)
 
-  1. Borrow And Lend
+  2. Borrow And Lend
   ![borrow and lend](https://1ton-static.s3.ap-south-1.amazonaws.com/borrow-lend.png)
 
-  1. Repay
+  3. Repay
   ![repay](https://1ton-static.s3.ap-south-1.amazonaws.com/repay.png)
 
-  1. Liquidate
+  4. Liquidate
   ![liquidate](https://1ton-static.s3.ap-south-1.amazonaws.com/liquidate.png)
 
 ## Layout
